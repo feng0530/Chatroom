@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 import tw.idv.frank.chatroom.common.constant.CommonCode;
 import tw.idv.frank.chatroom.common.exception.BaseException;
 import tw.idv.frank.chatroom.manager.model.dao.ManagerRepository;
-import tw.idv.frank.chatroom.manager.model.dto.ManagerRes;
 import tw.idv.frank.chatroom.manager.model.dto.ManagerReq;
+import tw.idv.frank.chatroom.manager.model.dto.ManagerRes;
 import tw.idv.frank.chatroom.manager.model.entity.Manager;
 import tw.idv.frank.chatroom.manager.service.ManagerService;
 
