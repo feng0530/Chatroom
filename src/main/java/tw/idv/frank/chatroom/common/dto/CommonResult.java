@@ -26,4 +26,9 @@ public class CommonResult<T> {
         this.msg = commonCode.getMes();
         this.result = result;
     }
+
+    public CommonResult(Integer code, String msg) {
+        this.code = code;
+        this.msg = msg;
+    }
 }

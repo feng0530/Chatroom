@@ -9,7 +9,7 @@ import java.util.List;
 @Repository
 public interface ManagerRepository extends JpaRepository<Manager, Integer> {
 
-    Manager getByAccount(String email);
+    Manager findByAccount(String email);
 
-    List<Manager> findAllByOrderByManagerIdAsc();
+    List<Manager> findByOrderByManagerIdAsc();
 }

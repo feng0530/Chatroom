@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -31,18 +32,21 @@ public class Manager {
     private Integer managerId;
 
     @Schema(description = "管理員姓名", example = "Frank")
+    @Size(max = 30)
     @NotBlank
     private String name;
 
     @Schema(description = "管理員帳號")
+    @Size(max = 30)
     @NotBlank
     private String account;
 
     @Schema(description = "管理員密碼")
+    @Size(min = 6, max = 60)
     @NotBlank
     private String password;
 
-    @Schema(description = "管理員權限", example = "ADMIN")
+    @Schema(description = "管理員權限", example = "MANAGER")
     @NotNull
     @Enumerated(EnumType.STRING)
     private RoleName role;
@@ -52,7 +56,7 @@ public class Manager {
     @Column(name = "create_time")
     private Date createTime;
 
-    @Schema(description = "管理員權最後修改時間，預設為自動生成")
+    @Schema(description = "管理員資訊最後修改時間，預設為自動生成")
     @LastModifiedDate
     @Column(name = "update_time")
     private Date updateTime;

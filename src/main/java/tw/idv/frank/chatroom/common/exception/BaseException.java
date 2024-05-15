@@ -7,13 +7,17 @@ import tw.idv.frank.chatroom.common.constant.CommonCode;
 @Getter
 public class BaseException extends Exception{
 
-    CommonCode code;
+    Integer code;
+
+    String mes;
 
     public BaseException(CommonCode code) {
-        this.code = code;
+        this.code = code.getCode();
+        this.mes = code.getMes();
     }
 
-    public BaseException(String mes) {
-        super(mes);
+    public BaseException(Integer code, String mes) {
+        this.code = code;
+        this.mes = mes;
     }
 }

@@ -2,17 +2,18 @@ package tw.idv.frank.chatroom.manager.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import tw.idv.frank.chatroom.common.constant.CommonCode;
 import tw.idv.frank.chatroom.common.dto.CommonResult;
+import tw.idv.frank.chatroom.common.dto.LoginReq;
+import tw.idv.frank.chatroom.common.dto.LoginRes;
 import tw.idv.frank.chatroom.common.exception.BaseException;
-import tw.idv.frank.chatroom.manager.model.dto.ManagerReq;
-import tw.idv.frank.chatroom.manager.model.dto.ManagerRes;
+import tw.idv.frank.chatroom.manager.model.dto.*;
 import tw.idv.frank.chatroom.manager.model.entity.Manager;
 import tw.idv.frank.chatroom.manager.service.ManagerService;
 
@@ -22,7 +23,6 @@ import java.util.List;
 @CrossOrigin("*")
 @RestController
 @RequestMapping("/manager")
-@Slf4j
 public class ManagerController {
 
     @Autowired
@@ -30,15 +30,17 @@ public class ManagerController {
 
     /**
      * 新增管理員
-     * @param manager
+     * @param addManagerReq
      * @return
      * @throws BaseException
      */
     @Operation(summary = "Create manager")
     @ApiResponse(responseCode = "200", description = "Create success!")
     @PostMapping
-    public CommonResult<ManagerRes> addManager(@Valid @RequestBody Manager manager) throws BaseException{
-        return new CommonResult<ManagerRes>(CommonCode.CREATE, managerService.addManager(manager));
+    public CommonResult<ManagerRes> addManager(
+            @Valid @RequestBody AddManagerReq addManagerReq
+    ) throws BaseException{
+        return new CommonResult<ManagerRes>(CommonCode.CREATE, managerService.addManager(addManagerReq));
     }
 
     /**
@@ -46,8 +48,8 @@ public class ManagerController {
      * @param id
      * @return
      */
-    @Operation(summary = "Delete manager by id")
-    @ApiResponse(responseCode = "200", description = "Delete success!")
+    @Operation(summary = "Delete manager by Id")
+    @ApiResponse(responseCode = "200", description = "Delete success!", content = {@Content})
     @DeleteMapping("/{id}")
     public CommonResult deleteManagerById(@PathVariable Integer id) {
         managerService.deleteManagerById(id);
@@ -56,15 +58,17 @@ public class ManagerController {
 
     /**
      * 修改管理員資訊
-     * @param managerReq
+     * @param updateManagerReq
      * @return
      * @throws BaseException
      */
     @Operation(summary = "Update manager role")
     @ApiResponse(responseCode = "200", description = "Update success!")
     @PutMapping
-    public CommonResult<Manager> updateManagerRole(@Valid @RequestBody ManagerReq managerReq) throws BaseException {
-        return new CommonResult<Manager>(CommonCode.UPDATE, managerService.updateManager(managerReq));
+    public CommonResult<Manager> updateManagerRole(
+            @Valid @RequestBody UpdateManagerReq updateManagerReq
+    ) throws BaseException {
+        return new CommonResult<Manager>(CommonCode.UPDATE, managerService.updateManager(updateManagerReq));
     }
 
     /**
@@ -73,7 +77,7 @@ public class ManagerController {
      */
     @Operation(summary = "Get manager list")
     @ApiResponse(responseCode = "200", description = "Get manager list")
-    @GetMapping("/list")
+    @GetMapping
     public CommonResult<List<ManagerRes>> getManagerList() {
         return new CommonResult<List<ManagerRes>>(CommonCode.SUCCESS, managerService.getManagerList());
     }
@@ -85,9 +89,23 @@ public class ManagerController {
      */
     @Operation(summary = "Get manager by Id")
     @ApiResponse(responseCode = "200", description = "Get manager detail")
-    @GetMapping("/list/{id}")
-    public CommonResult<Manager> getManagerById(@Parameter(description = "Input manager_id", example = "1")
-                                                    @PathVariable  Integer id) {
+    @GetMapping("/{id}")
+    public CommonResult<Manager> getManagerById(
+        @Parameter(description = "Input manager_id", example = "1")
+        @PathVariable Integer id
+    ) throws BaseException {
         return new CommonResult<Manager>(CommonCode.SUCCESS, managerService.getManagerById(id));
+    }
+
+    /**
+     *
+     * @param loginReq
+     * @return
+     */
+    @Operation(summary = "Manager login")
+    @ApiResponse(responseCode = "200", description = "Login success!")
+    @PostMapping("/login")
+    public CommonResult<LoginRes> managerLogin(@RequestBody LoginReq loginReq) {
+        return new CommonResult<LoginRes>(CommonCode.SUCCESS, managerService.login(loginReq));
     }
 }

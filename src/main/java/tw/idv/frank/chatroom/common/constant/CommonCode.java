@@ -29,7 +29,25 @@ public enum CommonCode {
 
     N902(400, "Manager不存在!"),
 
-    N903(400, "Role: 僅能為 'ADMIN' 或 'MANAGER'");
+    N903(400, "Role: 僅能為 'ADMIN' 或 'MANAGER'"),
+
+    N904(400, "查無相關資訊!"),
+
+    PARAMETER_ERROR(400,"請求的參數未通過檢查規則!"),
+
+    PARAMETER_TYPE_ERROR(400,"請求的參數型別有誤!"),
+
+    Required_Parameter_Missing(400, "缺少必填的參數"),
+
+    LOGIN_ERROR(400, "帳號或密碼錯誤!"),
+
+    U901(400, "信箱已註冊過!"),
+
+    U902(400, "使用者不存在!"),
+
+    F901(400, "已提出好友申請!"),
+
+    F902(400, "此好友關係已不存在!");
 
     private Integer code;
     private String mes;

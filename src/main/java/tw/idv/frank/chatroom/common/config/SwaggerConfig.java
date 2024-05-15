@@ -19,20 +19,18 @@ public class SwaggerConfig {
                 .description("The document will list APIs we practice before.");
 
         String securitySchemeName = "JWT Authentication";
-        SecurityRequirement securityRequirement =
-                new SecurityRequirement().addList(securitySchemeName);
-        Components components = new Components()
-                .addSecuritySchemes(securitySchemeName,
-                        new SecurityScheme()
-                                .name(securitySchemeName)
-                                .type(SecurityScheme.Type.HTTP)
-                                .scheme("bearer")
-                                .bearerFormat("JWT")
-                );
+        SecurityRequirement securityRequirement = new SecurityRequirement().addList(securitySchemeName);
+        Components components = new Components().addSecuritySchemes(
+                securitySchemeName,
+                new SecurityScheme()
+                        .name(securitySchemeName)
+                        .type(SecurityScheme.Type.HTTP)
+                        .scheme("bearer")
+                        .bearerFormat("JWT")
+        );
 
-        return new OpenAPI()
-                .info(info)
-                .addSecurityItem(securityRequirement)
-                .components(components);
+        return new OpenAPI().info(info)
+                            .addSecurityItem(securityRequirement)
+                            .components(components);
     }
 }

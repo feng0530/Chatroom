@@ -1,8 +1,15 @@
 package tw.idv.frank.chatroom.common.constant;
 
-public enum RoleName {
+import org.springframework.security.core.GrantedAuthority;
+
+public enum RoleName implements GrantedAuthority {
 
     ADMIN,
 
-    MANAGER
+    MANAGER;
+
+    @Override
+    public String getAuthority() {
+        return name();
+    }
 }

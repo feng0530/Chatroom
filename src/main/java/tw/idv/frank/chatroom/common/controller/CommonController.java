@@ -14,7 +14,7 @@ import tw.idv.frank.chatroom.common.constant.CommonCode;
 @CrossOrigin("*")
 @RestController
 @Slf4j
-public class HealthController {
+public class CommonController {
 
     @Operation(summary = "Check container health", description = "啟動容器後，健康檢查所呼叫的 API")
     @ApiResponse(responseCode = "200", description = "容器狀態為健康", content = { @Content })
@@ -23,4 +23,6 @@ public class HealthController {
         log.info("Check container health...");
         return CommonCode.SUCCESS;
     }
+
+    // validToken
 }
