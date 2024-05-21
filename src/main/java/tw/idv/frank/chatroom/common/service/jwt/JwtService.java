@@ -1,9 +1,11 @@
-package tw.idv.frank.chatroom.common.service;
+package tw.idv.frank.chatroom.common.service.jwt;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import tw.idv.frank.chatroom.common.dto.LoginRes;
 import tw.idv.frank.chatroom.manager.model.dto.ManagerRes;
@@ -15,15 +17,20 @@ import java.util.UUID;
 
 @Slf4j
 @Service
-public class TokenService {
+public class JwtService {
 
     private Key secretKey;
 
     private JwtParser jwtParser;
 
-    private final Long ACCESS_EXPIRATION_MILLIS = 1000l * 24;
+    @Value("${jwt.expiration.access}")
+    private Long accessExpirationMillis;
 
-    private final Long REFRESH_EXPIRATION_MILLIS = 1000l * 60;
+    @Value("${jwt.expiration.refresh}")
+    private Long refreshExpirationMillis;
+
+    @Autowired
+    private JwtBlackListService jwtBlackListService;
 
     @PostConstruct
     private void init() {
@@ -34,18 +41,24 @@ public class TokenService {
     }
 
     public LoginRes generalToken(ManagerRes managerRes) {
-        String tokenId = String.valueOf(UUID.randomUUID());
+        String jti = String.valueOf(UUID.randomUUID());
 
         return new LoginRes(
-                createToken(managerRes, tokenId, "Access"),
-                createToken(managerRes,tokenId, "Refresh")
+                createToken(managerRes, jti, "Access"),
+                createToken(managerRes, jti, "Refresh")
         );
     }
 
     public Claims parseToken(String jwt) throws JwtException {
 
         try {
-            return jwtParser.parseClaimsJws(jwt).getBody();
+            Claims claims = jwtParser.parseClaimsJws(jwt).getBody();
+
+            if (jwtBlackListService.isJwtInBlackList(claims.getId())) {
+                log.warn("JWT ID無效，表示已經登出或者已經被鎖定");
+                return Jwts.claims();
+            }
+            return claims;
         }catch (SignatureException e) {
             log.warn("JWT 的簽名無效，表示JWT 被竄改或者使用了錯誤的密鑰驗證");
         }
@@ -64,16 +77,16 @@ public class TokenService {
         return Jwts.claims();
     }
 
-    private String createToken(ManagerRes managerRes, String tokenId, String subject) {
+    private String createToken(ManagerRes managerRes, String jti, String subject) {
         // 有效時間 (毫秒)
-        long expirationMillis = ACCESS_EXPIRATION_MILLIS;
+        long expirationMillis = accessExpirationMillis;
 
         if ("Refresh".equals(subject)) {
-            expirationMillis = REFRESH_EXPIRATION_MILLIS;
+            expirationMillis = refreshExpirationMillis;
         }
 
         return Jwts.builder()
-                .setId(tokenId)
+                .setId(jti)
                 .setSubject(subject)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expirationMillis))
@@ -94,10 +107,10 @@ public class TokenService {
     }
 
     private String createToken(UsersRes usersRes, String jti, String subject) {
-        long expirationMillis = ACCESS_EXPIRATION_MILLIS;
+        long expirationMillis = accessExpirationMillis;
 
         if ("Refresh".equals(subject)) {
-            expirationMillis = REFRESH_EXPIRATION_MILLIS;
+            expirationMillis = refreshExpirationMillis;
         }
 
         return Jwts.builder()

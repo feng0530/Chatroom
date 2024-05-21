@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -107,5 +108,12 @@ public class ManagerController {
     @PostMapping("/login")
     public CommonResult<LoginRes> managerLogin(@RequestBody LoginReq loginReq) {
         return new CommonResult<LoginRes>(CommonCode.SUCCESS, managerService.login(loginReq));
+    }
+
+    @Operation(summary = "Manager logout")
+    @ApiResponse(responseCode = "200", description = "Logout success!")
+    @PostMapping("/logout")
+    public CommonResult managerLogout(HttpServletRequest request) {
+        return managerService.logout(request);
     }
 }

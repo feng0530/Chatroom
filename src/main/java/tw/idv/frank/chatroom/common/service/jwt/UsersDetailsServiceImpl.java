@@ -1,4 +1,4 @@
-package tw.idv.frank.chatroom.common.service;
+package tw.idv.frank.chatroom.common.service.jwt;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;

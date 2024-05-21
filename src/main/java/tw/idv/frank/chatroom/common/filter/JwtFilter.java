@@ -13,7 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import tw.idv.frank.chatroom.common.dto.LoginRes;
-import tw.idv.frank.chatroom.common.service.TokenService;
+import tw.idv.frank.chatroom.common.service.jwt.JwtService;
 import tw.idv.frank.chatroom.manager.model.dto.ManagerDetails;
 import tw.idv.frank.chatroom.manager.model.dto.ManagerRes;
 import tw.idv.frank.chatroom.manager.model.entity.Manager;
@@ -26,10 +26,10 @@ import java.io.IOException;
 @Component
 public class JwtFilter extends OncePerRequestFilter {
 
-    private static final String BEARER_PREFIX = "Bearer ";
+    public static final String BEARER_PREFIX = "Bearer ";
 
     @Autowired
-    private TokenService tokenService;
+    private JwtService jwtService;
 
     @Autowired
     private ModelMapper modelMapper;
@@ -44,7 +44,7 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         jwt = jwt.substring(BEARER_PREFIX.length());
-        Claims claims = tokenService.parseToken(jwt);
+        Claims claims = jwtService.parseToken(jwt);
         if (claims.isEmpty()){
             filterChain.doFilter(request, response);
             return;
@@ -53,28 +53,38 @@ public class JwtFilter extends OncePerRequestFilter {
         Authentication authentication = null;
         if ("Users".equals(claims.get("type"))) {
             authentication = getUsersAuthentication(claims);
-            refreshUsersToken(response, claims);
+            refreshUsersToken(request, response, claims);
         }else if ("Manager".equals(claims.get("type"))) {
             authentication = getManagerAuthentication(claims);
-            refreshManagerToken(response, claims);
+            refreshManagerToken(request, response, claims);
         }
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         filterChain.doFilter(request, response);
     }
 
-    private void refreshManagerToken(HttpServletResponse response, Claims claims) {
+    private void refreshManagerToken(HttpServletRequest request, HttpServletResponse response, Claims claims) {
+
+        if ("/manager/logout".equals(request.getRequestURI())) {
+            return;
+        }
+
         if ("Refresh".equals(claims.getSubject())) {
             ManagerRes managerRes = modelMapper.map(claims.get("detail"), ManagerRes.class);
-            LoginRes loginRes = tokenService.generalToken(managerRes);
+            LoginRes loginRes = jwtService.generalToken(managerRes);
             responseFunc(response, loginRes);
         }
     }
 
-    private void refreshUsersToken(HttpServletResponse response, Claims claims) {
+    private void refreshUsersToken(HttpServletRequest request, HttpServletResponse response, Claims claims) {
+
+        if ("/users/logout".equals(request.getRequestURI())) {
+            return;
+        }
+
         if ("Refresh".equals(claims.getSubject())) {
             UsersRes usersRes = modelMapper.map(claims.get("detail"), UsersRes.class);
-            LoginRes loginRes = tokenService.generalToken(usersRes);
+            LoginRes loginRes = jwtService.generalToken(usersRes);
             responseFunc(response, loginRes);
         }
     }

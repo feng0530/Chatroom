@@ -1,5 +1,7 @@
 package tw.idv.frank.chatroom.users.service;
 
+import jakarta.servlet.http.HttpServletRequest;
+import tw.idv.frank.chatroom.common.dto.CommonResult;
 import tw.idv.frank.chatroom.common.dto.LoginReq;
 import tw.idv.frank.chatroom.common.dto.LoginRes;
 import tw.idv.frank.chatroom.common.exception.BaseException;
@@ -25,4 +27,6 @@ public interface UsersService {
     UsersRes enableUsers(EnableUsersReq enableUsersReq) throws BaseException;
 
     LoginRes login(LoginReq loginReq);
+
+    CommonResult logout(HttpServletRequest request);
 }

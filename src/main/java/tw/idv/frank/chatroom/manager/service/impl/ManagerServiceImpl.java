@@ -1,5 +1,6 @@
 package tw.idv.frank.chatroom.manager.service.impl;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,11 +9,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import tw.idv.frank.chatroom.common.constant.CommonCode;
+import tw.idv.frank.chatroom.common.dto.CommonResult;
 import tw.idv.frank.chatroom.common.dto.LoginReq;
 import tw.idv.frank.chatroom.common.dto.LoginRes;
 import tw.idv.frank.chatroom.common.exception.BaseException;
+import tw.idv.frank.chatroom.common.filter.JwtFilter;
 import tw.idv.frank.chatroom.common.provider.ManagerProvider;
-import tw.idv.frank.chatroom.common.service.TokenService;
+import tw.idv.frank.chatroom.common.service.jwt.JwtBlackListService;
+import tw.idv.frank.chatroom.common.service.jwt.JwtService;
 import tw.idv.frank.chatroom.manager.model.dao.ManagerRepository;
 import tw.idv.frank.chatroom.manager.model.dto.AddManagerReq;
 import tw.idv.frank.chatroom.manager.model.dto.ManagerDetails;
@@ -38,10 +42,13 @@ public class ManagerServiceImpl implements ManagerService {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private TokenService tokenService;
+    private JwtService jwtService;
 
     @Autowired
     private ManagerProvider provider;
+
+    @Autowired
+    private JwtBlackListService jwtBlackListService;
 
     @Override
     public ManagerRes addManager(AddManagerReq addManagerReq) throws BaseException {
@@ -76,7 +83,14 @@ public class ManagerServiceImpl implements ManagerService {
     @Override
     public LoginRes login(LoginReq loginReq) {
         ManagerRes managerRes = getManagerRes(loginReq);
-        return tokenService.generalToken(managerRes);
+        return jwtService.generalToken(managerRes);
+    }
+
+    @Override
+    public CommonResult logout(HttpServletRequest request) {
+        String jwt = request.getHeader("Authorization").substring(JwtFilter.BEARER_PREFIX.length());
+        jwtBlackListService.addJwtToBlackList(jwtService.parseToken(jwt).getId());
+        return new CommonResult(200, "Logout success!");
     }
 
     private ManagerRes getManagerRes(LoginReq loginReq) {

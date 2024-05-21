@@ -4,6 +4,7 @@ import jakarta.validation.UnexpectedTypeException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -69,6 +70,14 @@ public class GlobalExceptionHandler {
         log.error(e.getMessage());
         return new CommonResult(CommonCode.LOGIN_ERROR, e.getMessage());
     }
+
+    @ExceptionHandler(DisabledException.class)
+    public CommonResult disabledExceptionHandler(AuthenticationException e) {
+        log.error(e.getMessage());
+        return new CommonResult(CommonCode.U903, e.getMessage());
+    }
+
+
 //    @ExceptionHandler(Exception.class)
 //    public CommonResult ExceptionHandler(Exception e) {
 //        log.error(e.getMessage());

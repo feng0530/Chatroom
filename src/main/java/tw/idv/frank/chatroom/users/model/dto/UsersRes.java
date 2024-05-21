@@ -15,7 +15,6 @@ public class UsersRes {
 
     @Id
     @Schema(description = "使用者編號，預設為自動生成")
-    @GeneratedValue(strategy = GenerationType.UUID)
     private String userId;
 
     @Schema(description = "使用者姓名")

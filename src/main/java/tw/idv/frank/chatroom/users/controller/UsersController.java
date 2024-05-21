@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -118,7 +119,14 @@ public class UsersController {
     @Operation(summary = "Users login")
     @ApiResponse(responseCode = "200", description = "Login success!")
     @PostMapping("/login")
-    public CommonResult<LoginRes> managerLogin(@RequestBody LoginReq loginReq) {
+    public CommonResult<LoginRes> userLogin(@RequestBody LoginReq loginReq) {
         return new CommonResult<LoginRes>(CommonCode.SUCCESS, usersService.login(loginReq));
+    }
+
+    @Operation(summary = "Users logout")
+    @ApiResponse(responseCode = "200", description = "Logout success!")
+    @PostMapping("/logout")
+    public CommonResult userLogout(HttpServletRequest request) {
+        return usersService.logout(request);
     }
 }

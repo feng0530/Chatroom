@@ -1,5 +1,7 @@
 package tw.idv.frank.chatroom.manager.service;
 
+import jakarta.servlet.http.HttpServletRequest;
+import tw.idv.frank.chatroom.common.dto.CommonResult;
 import tw.idv.frank.chatroom.common.dto.LoginReq;
 import tw.idv.frank.chatroom.common.dto.LoginRes;
 import tw.idv.frank.chatroom.common.exception.BaseException;
@@ -23,4 +25,6 @@ public interface ManagerService {
     Manager getManagerById(Integer id) throws BaseException;
 
     LoginRes login(LoginReq loginReq);
+
+    CommonResult logout(HttpServletRequest request);
 }

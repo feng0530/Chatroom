@@ -1,5 +1,6 @@
 package tw.idv.frank.chatroom.users.service.impl;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,11 +9,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import tw.idv.frank.chatroom.common.constant.CommonCode;
+import tw.idv.frank.chatroom.common.dto.CommonResult;
 import tw.idv.frank.chatroom.common.dto.LoginReq;
 import tw.idv.frank.chatroom.common.dto.LoginRes;
 import tw.idv.frank.chatroom.common.exception.BaseException;
+import tw.idv.frank.chatroom.common.filter.JwtFilter;
 import tw.idv.frank.chatroom.common.provider.UsersProvider;
-import tw.idv.frank.chatroom.common.service.TokenService;
+import tw.idv.frank.chatroom.common.service.jwt.JwtBlackListService;
+import tw.idv.frank.chatroom.common.service.jwt.JwtService;
 import tw.idv.frank.chatroom.users.model.dao.UsersRepository;
 import tw.idv.frank.chatroom.users.model.dto.*;
 import tw.idv.frank.chatroom.users.model.entity.Users;
@@ -35,10 +39,13 @@ public class UsersServiceImpl implements UsersService {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private TokenService tokenService;
+    private JwtService jwtService;
 
     @Autowired
     private UsersProvider provider;
+
+    @Autowired
+    private JwtBlackListService jwtBlackListService;
 
     @Override
     public UsersRes addUsers(AddUsersReq addUsersReq) throws BaseException {
@@ -77,17 +84,34 @@ public class UsersServiceImpl implements UsersService {
 
     @Override
     public LoginRes login(LoginReq loginReq) {
-        UsersRes usersRes = getUsersRes(loginReq);
-        return tokenService.generalToken(usersRes);
+        UsersRes usersRes = authentication(loginReq);
+        return jwtService.generalToken(usersRes);
+
+//        Users users = usersRepository.updateLoginStatus(getUserId(loginReq), "1");
+//        UsersRes usersRes = modelMapper.map(users, UsersRes.class);
+//        return jwtService.generalToken(usersRes);
     }
 
-    private UsersRes getUsersRes(LoginReq loginReq) {
+    @Override
+    public CommonResult logout(HttpServletRequest request) {
+        String jwt = request.getHeader("Authorization").substring(JwtFilter.BEARER_PREFIX.length());
+        jwtBlackListService.addJwtToBlackList(jwtService.parseToken(jwt).getId());
+        return new CommonResult(200, "Logout success!");
+    }
+
+    private UsersRes authentication(LoginReq loginReq) {
         Authentication authentication = new UsernamePasswordAuthenticationToken(loginReq.getAccount(), loginReq.getPassword());
         authentication = provider.authenticate(authentication);
         UsersDetails usersDetails = (UsersDetails) authentication.getPrincipal();
-        UsersRes usersRes = modelMapper.map(usersDetails.getUsers(), UsersRes.class);
-        return usersRes;
+        return modelMapper.map(usersDetails.getUsers(), UsersRes.class);
     }
+
+//    private String getUserId(LoginReq loginReq) {
+//        Authentication authentication = new UsernamePasswordAuthenticationToken(loginReq.getAccount(), loginReq.getPassword());
+//        authentication = provider.authenticate(authentication);
+//        UsersDetails usersDetails = (UsersDetails) authentication.getPrincipal();
+//        return usersDetails.getUsers().getUserId();
+//    }
 
     private void validEmailExist(AddUsersReq addUsersReq) throws BaseException {
         Users users = usersRepository.findByEmail(addUsersReq.getEmail());

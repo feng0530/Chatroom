@@ -36,22 +36,18 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http,
             JwtFilter jwtFilter
-//            ManagerJwtFilter managerJwtFilter,
-//            UsersJwtFilter usersJwtFilter
     ) throws Exception {
         String[] authorityList = new String[]{"ADMIN","MANAGER"};
 
         http.authorizeHttpRequests(registry -> registry
                         // 放行 Swagger相關資源
                         .requestMatchers("/swagger-ui/**", "/webjars/**", "/v3/**", "/swagger-resources/**").permitAll()
-
-                        .requestMatchers( "/users/login", "/manager/login", "/health").permitAll()
+                        // "/users/logout",  "/manager/logout",
+                        .requestMatchers(  "/users/login", "/manager/login", "/health").permitAll()
                         .requestMatchers("/manager/**").hasAuthority(authorityList[0])
                         .requestMatchers(HttpMethod.PUT,"/users/enable").hasAnyAuthority(authorityList)
                         .requestMatchers(HttpMethod.GET, "/users").hasAnyAuthority(authorityList)
                         .anyRequest().authenticated())
-//                .addFilterBefore(managerJwtFilter, UsernamePasswordAuthenticationFilter.class)
-//                .addFilterBefore(usersJwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(exceptionHandler -> exceptionHandler
                         .authenticationEntryPoint(new AuthenticationEntryPointHandlerImpl())
